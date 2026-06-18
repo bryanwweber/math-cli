@@ -12,5 +12,8 @@
   "dependencies": {
     "@mathjax/mathjax-newcm-font": "^4.1.2",
     "@mathjax/src": "^4.1.2"
+  },
+  "scripts": {
+    "compile": "bun build index.ts --compile --outfile math"
   }
 }
