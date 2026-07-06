@@ -17,17 +17,7 @@ RegisterHTMLHandler(adaptor);
 const tex = new TeX({
   packages: ["base", "ams", "boldsymbol", "newcommand", "noundefined"],
 });
-const svg = new SVG({ fontCache: "local" });
-const CSS = [
-  "svg a{fill:blue;stroke:blue}",
-  '[data-mml-node="merror"]>g{fill:red;stroke:red}',
-  '[data-mml-node="merror"]>rect[data-background]{fill:yellow;stroke:none}',
-  "[data-frame],[data-line]{stroke-width:70px;fill:none}",
-  ".mjx-dashed{stroke-dasharray:140}",
-  ".mjx-dotted{stroke-linecap:round;stroke-dasharray:0,140}",
-  "use[data-c]{stroke-width:3px}",
-  ":root {--math-color: rgb(100, 100, 200)}",
-].join("");
+const svg = new SVG({ fontCache: "local", useXlink: false });
 
 const document = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
