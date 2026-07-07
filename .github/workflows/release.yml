@@ -28,6 +28,9 @@ jobs:
         uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           no-cache: true
+      # Note: Do not use a cache here to prevent cache poisioning
+      - name: Install dependencies
+        run: bun install
       - uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
           args: release --clean
