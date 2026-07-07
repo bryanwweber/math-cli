@@ -1,9 +1,9 @@
-import { mathjax } from "@mathjax/src/js/mathjax.js";
-import { parseArgs } from "util";
-import { TeX } from "@mathjax/src/js/input/tex.js";
-import { SVG } from "@mathjax/src/js/output/svg.js";
+import { parseArgs } from "node:util";
 import { liteAdaptor } from "@mathjax/src/js/adaptors/liteAdaptor.js";
 import { RegisterHTMLHandler } from "@mathjax/src/js/handlers/html.js";
+import { TeX } from "@mathjax/src/js/input/tex.js";
+import { mathjax } from "@mathjax/src/js/mathjax.js";
+import { SVG } from "@mathjax/src/js/output/svg.js";
 import "@mathjax/src/js/util/asyncLoad/esm.js";
 
 import "@mathjax/src/js/input/tex/base/BaseConfiguration.js";
