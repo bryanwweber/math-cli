@@ -11,8 +11,6 @@ updates:
       dev-versions:
         applies-to: version-updates
         dependency-type: development
-      security-updates:
-        applies-to: security-updates
     cooldown:
       default-days: 7
   - package-ecosystem: "github-actions"
@@ -21,3 +19,7 @@ updates:
       interval: "monthly"
     cooldown:
       default-days: 7
+    groups:
+      all:
+        patterns:
+          - "*"
