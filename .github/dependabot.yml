@@ -4,3 +4,20 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    groups:
+      prod-versions:
+        applies-to: version-updates
+        dependency-type: production
+      dev-versions:
+        applies-to: version-updates
+        dependency-type: development
+      security-updates:
+        applies-to: security-updates
+    cooldown:
+      default-days: 7
+  - package-ecosystem: "github-actions"
+    directory: ".github"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7

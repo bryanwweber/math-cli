@@ -1,9 +1,10 @@
-import { mathjax } from "@mathjax/src/js/mathjax.js";
-import { parseArgs } from "util";
-import { TeX } from "@mathjax/src/js/input/tex.js";
-import { SVG } from "@mathjax/src/js/output/svg.js";
+import { parseArgs } from "node:util";
 import { liteAdaptor } from "@mathjax/src/js/adaptors/liteAdaptor.js";
 import { RegisterHTMLHandler } from "@mathjax/src/js/handlers/html.js";
+import { TeX } from "@mathjax/src/js/input/tex.js";
+import { mathjax } from "@mathjax/src/js/mathjax.js";
+import { SVG } from "@mathjax/src/js/output/svg.js";
+import "@mathjax/src/js/util/asyncLoad/esm.js";
 
 import "@mathjax/src/js/input/tex/base/BaseConfiguration.js";
 import "@mathjax/src/js/input/tex/ams/AmsConfiguration.js";
@@ -17,32 +18,44 @@ RegisterHTMLHandler(adaptor);
 const tex = new TeX({
   packages: ["base", "ams", "boldsymbol", "newcommand", "noundefined"],
 });
-const svg = new SVG({ fontCache: "local" });
-const CSS = [
-  "svg a{fill:blue;stroke:blue}",
-  '[data-mml-node="merror"]>g{fill:red;stroke:red}',
-  '[data-mml-node="merror"]>rect[data-background]{fill:yellow;stroke:none}',
-  "[data-frame],[data-line]{stroke-width:70px;fill:none}",
-  ".mjx-dashed{stroke-dasharray:140}",
-  ".mjx-dotted{stroke-linecap:round;stroke-dasharray:0,140}",
-  "use[data-c]{stroke-width:3px}",
-  ":root {--math-color: rgb(100, 100, 200)}",
-].join("");
+const svg = new SVG({ fontCache: "local", useXlink: false });
 
 const document = mathjax.document("", { InputJax: tex, OutputJax: svg });
 
-const { positionals } = parseArgs({
-  args: Bun.argv,
+const { values } = parseArgs({
+  args: Bun.argv.slice(2),
+  options: {
+    input: { type: "string", short: "i" },
+    output: { type: "string", short: "o" },
+  },
   strict: true,
   allowPositionals: true,
 });
-if (positionals.length !== 3) {
-  throw new Error("pass math as a positional");
+
+if (!values.input || !values.output) {
+  console.error("Usage: bun run script.ts -i <file|-> -o <file|->");
+  process.exit(1);
 }
-const node = document.convert(String(positionals[2]), {});
-let svgDoc = adaptor.serializeXML(adaptor.getElement("svg", node));
-svgDoc = svgDoc.replaceAll(/currentColor/g, "var(--math-color)");
-svgDoc = svgDoc.replace(/<defs>/, `<defs><style>${CSS}</style>`);
-console.log(svgDoc);
+
+let mathInput = "";
+if (values.input === "-") {
+  for await (const chunk of process.stdin) {
+    mathInput += chunk.toString();
+  }
+} else {
+  mathInput = await Bun.file(values.input).text();
+}
+
+const node = await document.convertPromise(mathInput, {
+  display: false,
+});
+const svgNode = adaptor.getElement("svg", node);
+let svgDoc = adaptor.serializeXML(svgNode);
+svgDoc = svgDoc.replaceAll(/currentColor/g, "var(--math-text-color)");
+if (values.output === "-") {
+  process.stdout.write(svgDoc);
+} else {
+  await Bun.write(values.output, svgDoc);
+}
 // This is the last thing to do to release worker resources.
-document.done();
+await document.done();

@@ -1,0 +1,58 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+
+version: 2
+
+builds:
+  - builder: bun
+    targets:
+      - linux-x64-modern
+      - linux-arm64
+      - darwin-x64
+      - darwin-arm64
+      - windows-x64-modern
+
+# config the checksum filename
+# https://goreleaser.com/customization/checksum
+checksum:
+  name_template: "checksums.txt"
+
+archives:
+  - formats: [tar.gz]
+    # this name template makes the OS and Arch compatible with the results of `uname`.
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- title .Os }}_
+      {{- if eq .Arch "amd64" }}x86_64
+      {{- else if eq .Arch "386" }}i386
+      {{- else }}{{ .Arch }}{{ end }}
+    # use zip for windows archives
+    format_overrides:
+      - goos: windows
+        formats: [zip]
+    builds_info:
+      mtime: "{{ .CommitTimestamp }}"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+
+signs:
+  - cmd: cosign
+    signature: "${artifact}.sigstore.json"
+    args:
+      - sign-blob
+      - "${artifact}"
+      - "--bundle=${signature}"
+      - "--yes" # needed on cosign 2.0.0+
+    artifacts: checksum
+    output: true
+
+release:
+  footer: >-
+
+    ---
+
+    Released by [GoReleaser](https://github.com/goreleaser/goreleaser).
