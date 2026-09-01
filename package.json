@@ -5,9 +5,9 @@
   "private": true,
   "version": "0.1.2",
   "devDependencies": {
-    "@biomejs/biome": "2.5.2",
+    "@biomejs/biome": "2.5.10",
     "@types/bun": "latest",
-    "node-html-parser": "^9.0.0"
+    "node-html-parser": "^9.0.1"
   },
   "peerDependencies": {
     "typescript": "^5.9.3"
